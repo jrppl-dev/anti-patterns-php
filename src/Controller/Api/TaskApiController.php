@@ -81,6 +81,38 @@ class TaskApiController extends AbstractController
         ]], 201);
     }
 
+    /**
+     * Snooze a task.
+     */
+    #[Route('/tasks/{id}/snooze', name: 'api_task_snooze', methods: ['POST'])]
+    public function snooze(int $id, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $em->getRepository(User::class)->find((int) $request->headers->get('X-User-Id'));
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthorized'], 401);
+        }
+
+        $task = $em->getRepository(Task::class)->find($id);
+        if (!$task || $task->getList()->getOwner()->getId() != $user->getId()) {
+            return new JsonResponse(['error' => 'Not found'], 404);
+        }
+
+        // add one day to the due date
+        $dueDate = $task->getDueDate();
+        if ($dueDate) {
+            $dueDate->modify('+1 day');
+            $task->setDueDate($dueDate);
+        } else {
+            $task->setDueDate(new \DateTime('tomorrow'));
+        }
+        $em->flush();
+
+        return new JsonResponse(['data' => [
+            'id' => $task->getId(),
+            'due_date' => $task->getDueDate()->format('Y-m-d'),
+        ]]);
+    }
+
     #[Route('/tasks/{id}', name: 'api_task_update', methods: ['PATCH'])]
     public function update(int $id, Request $request, EntityManagerInterface $em): JsonResponse
     {

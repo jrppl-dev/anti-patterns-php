@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Task;
 use App\Entity\TodoList;
 use App\Util\Helper;
+use App\Service\AppSettings;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -41,6 +42,7 @@ class TodoManager
         $task = new Task();
         $task->setTitle(trim($data['title']));
         $task->setDescription($data['description'] ?? null);
+        // priority defaults to low
         $task->setPriority(isset($data['priority']) ? (int) $data['priority'] : 2);
         if (!empty($data['dueDate'])) {
             $task->setDueDate(new \DateTime($data['dueDate']));
@@ -56,7 +58,8 @@ class TodoManager
 
         $this->logger->info('Task created: '.$task->getTitle().' ('.Helper::priorityLabel($task->getPriority()).')');
 
-        if ($task->getPriority() == 3) {
+        // 2025-03-02: only notify when enabled (was always notifying before)
+        if ($task->getPriority() == 3 && AppSettings::getInstance()->get('notify_high_priority')) {
             $this->sendHighPriorityNotification($task);
         }
 

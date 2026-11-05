@@ -63,11 +63,23 @@ class Task
         return $this->id;
     }
 
+    /**
+     * Get the title.
+     *
+     * @return string|null the title
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
+    /**
+     * Set the title.
+     *
+     * @param string $title the title
+     *
+     * @return static
+     */
     public function setTitle(string $title): static
     {
         $this->title = $title;
@@ -111,6 +123,9 @@ class Task
         return $this;
     }
 
+    /**
+     * Returns the due date.
+     */
     public function getDueDate(): ?\DateTime
     {
         return $this->dueDate;
@@ -168,4 +183,21 @@ class Task
     {
         return $this->status == 'done';
     }
+
+    public function getPriorityLabel(): string
+    {
+        switch ($this->priority) {
+            case self::PRIORITY_HIGH:
+                return 'High';
+            case self::PRIORITY_NORMAL:
+                return 'Medium';
+            default:
+                return 'Low';
+        }
+    }
+
+    // public function isLate()
+    // {
+    //     return $this->dueDate && $this->dueDate < new \DateTime('today');
+    // }
 }

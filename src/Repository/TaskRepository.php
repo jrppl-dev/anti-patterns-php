@@ -17,6 +17,17 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
+     * Complete all the tasks of a list.
+     */
+    public function completeAllInList(int $listId): int
+    {
+        return $this->getEntityManager()
+            ->createQuery("UPDATE App\\Entity\\Task t SET t.status = 'done' WHERE IDENTITY(t.list) = :list AND t.status != 'done'")
+            ->setParameter('list', $listId)
+            ->execute();
+    }
+
+    /**
      * @return Task[]
      */
     public function findByListAndStatus(int $listId, string $status): array

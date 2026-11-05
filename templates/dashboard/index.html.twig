@@ -4,6 +4,10 @@
     <p>Completed this week: <strong id="completed-this-week">{{ completedThisWeek }}</strong></p>
 
     <h2>My lists</h2>
+    <form method="get" action="{{ path('dashboard') }}">
+        <input name="q" value="{{ q }}" placeholder="Search lists">
+        <button type="submit">Search</button>
+    </form>
     <table>
         <thead><tr><th>List</th><th>To do</th><th>Doing</th><th>Done</th></tr></thead>
         <tbody>

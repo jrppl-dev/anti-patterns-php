@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Entity\TodoList;
 use App\Entity\User;
+use App\Repository\TaskRepository;
+use App\Service\Sort\SortStrategyFactory;
 use App\Service\TodoManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -69,8 +71,11 @@ class ListController extends AbstractController
                 $tasks[] = $em->getRepository(Task::class)->find($taskId);
             }
         } else {
-            $tasks = $list->getTasks();
+            $tasks = $list->getTasks()->toArray();
         }
+
+        $sort = $request->query->get('sort', $list->getSetting('sort'));
+        $tasks = SortStrategyFactory::create($sort)->sort($tasks, $sort ?? 'id');
 
         return $this->render('list/show.html.twig', [
             'user' => $user,
@@ -78,7 +83,28 @@ class ListController extends AbstractController
             'tasks' => $tasks,
             'stats' => $manager->getStats($list),
             'status' => $status,
+            'sort' => $sort,
         ]);
+    }
+
+    #[Route('/lists/{id}/complete-all', name: 'list_complete_all', methods: ['POST'])]
+    public function completeAll(int $id, Request $request, EntityManagerInterface $em, TaskRepository $taskRepository): Response
+    {
+        $userId = $request->getSession()->get('user_id');
+        $user = $userId ? $em->getRepository(User::class)->find($userId) : null;
+        if (!$user) {
+            return $this->redirectToRoute('dashboard');
+        }
+
+        $list = $em->getRepository(TodoList::class)->find($id);
+        if (!$list || $list->getOwner()->getId() != $user->getId()) {
+            throw $this->createNotFoundException('List not found');
+        }
+
+        $count = $taskRepository->completeAllInList($id);
+        $this->addFlash('success', $count.' tasks completed');
+
+        return $this->redirectToRoute('list_show', ['id' => $id]);
     }
 
     #[Route('/lists/{id}/delete', name: 'list_delete', methods: ['POST'])]

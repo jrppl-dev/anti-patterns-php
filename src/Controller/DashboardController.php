@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\TodoList;
 use App\Entity\User;
+use App\Repository\TodoListRepository;
+use App\Repository\UserRepository;
+use App\Service\AppSettings;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,17 +16,20 @@ use Symfony\Component\Routing\Attribute\Route;
 class DashboardController extends AbstractController
 {
     #[Route('/', name: 'dashboard')]
-    public function index(Request $request, EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em, UserRepository $userRepository, TodoListRepository $listRepository): Response
     {
-        $userId = $request->getSession()->get('user_id');
-        $user = $userId ? $em->getRepository(User::class)->find($userId) : null;
+        $user = $userRepository->findCurrent();
         if (!$user) {
             return $this->render('dashboard/choose_user.html.twig', [
                 'users' => $em->getRepository(User::class)->findAll(),
             ]);
         }
 
-        $lists = $em->getRepository(TodoList::class)->findBy(['owner' => $user], ['name' => 'ASC']);
+        if ($request->query->get('q')) {
+            $lists = $listRepository->search($request, $user);
+        } else {
+            $lists = $em->getRepository(TodoList::class)->findBy(['owner' => $user], ['name' => 'ASC']);
+        }
 
         $conn = $em->getConnection();
         $counts = [];
@@ -36,7 +42,7 @@ class DashboardController extends AbstractController
         }
 
         // get the monday of this week
-        $monday = new \DateTime('monday this week');
+        $monday = new \DateTime(AppSettings::getInstance()->get('week_start').' this week');
         $completedThisWeek = (int) $conn->executeQuery(
             'SELECT COUNT(*) FROM task t INNER JOIN todo_list l ON l.id = t.list_id WHERE l.owner_id = ? AND t.completed_at >= ?',
             [$user->getId(), $monday->format('Y-m-d 00:00:00')]
@@ -47,6 +53,7 @@ class DashboardController extends AbstractController
             'lists' => $lists,
             'counts' => $counts,
             'completedThisWeek' => $completedThisWeek,
+            'q' => $request->query->get('q'),
         ]);
     }
 

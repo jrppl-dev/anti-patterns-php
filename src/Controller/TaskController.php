@@ -39,6 +39,8 @@ class TaskController extends AbstractController
         }
 
         $manager->createTask($data, $list);
+        // $this->addFlash('info', 'Task '.$data['title'].' was added to '.$list->getName());
+        // $em->refresh($list);
         $this->addFlash('success', 'Task added');
 
         return $this->redirectToRoute('list_show', ['id' => $id]);

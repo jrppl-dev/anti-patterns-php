@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h2>Edit task</h2>
+    <h2>Edit task <small>({{ task.priorityLabel }} priority)</small></h2>
     {% for error in errors %}
         <div class="flash-error">{{ error }}</div>
     {% endfor %}

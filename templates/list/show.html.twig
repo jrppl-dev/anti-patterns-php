@@ -13,7 +13,14 @@
         <a href="{{ path('list_show', {id: list.id, status: 'todo'}) }}">to do</a> ·
         <a href="{{ path('list_show', {id: list.id, status: 'doing'}) }}">doing</a> ·
         <a href="{{ path('list_show', {id: list.id, status: 'done'}) }}">done</a>
+        · Sort:
+        <a href="{{ path('list_show', {id: list.id, sort: 'priority'}) }}">priority</a> ·
+        <a href="{{ path('list_show', {id: list.id, sort: 'due'}) }}">due date</a> ·
+        <a href="{{ path('list_show', {id: list.id, sort: 'title'}) }}">title</a>
     </p>
+    <form method="post" action="{{ path('list_complete_all', {id: list.id}) }}">
+        <button type="submit">Complete all</button>
+    </form>
 
     <table>
         <thead><tr><th></th><th>Task</th><th>Priority</th><th>Due</th><th></th></tr></thead>

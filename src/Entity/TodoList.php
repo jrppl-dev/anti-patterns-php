@@ -25,6 +25,10 @@ class TodoList
     #[ORM\Column]
     private ?\DateTime $createdAt = null;
 
+    // settings
+    #[ORM\Column(type: 'json', options: ['default' => '[]'])]
+    private array $settings = [];
+
     /**
      * @var Collection<int, Task>
      */
@@ -76,6 +80,23 @@ class TodoList
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    public function getSettings(): array
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(array $settings): static
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
+
+    public function getSetting($key, $default = null)
+    {
+        return isset($this->settings[$key]) ? $this->settings[$key] : $default;
     }
 
     /**
