@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ list.name }}{% endblock %}
+
+{% block body %}
+    <h2>{{ list.name }}</h2>
+    <p>
+        {{ stats.todo }} to do · {{ stats.doing }} doing · {{ stats.done }} done · {{ stats.overdue }} overdue
+    </p>
+    <p>
+        Filter:
+        <a href="{{ path('list_show', {id: list.id}) }}">all</a> ·
+        <a href="{{ path('list_show', {id: list.id, status: 'todo'}) }}">to do</a> ·
+        <a href="{{ path('list_show', {id: list.id, status: 'doing'}) }}">doing</a> ·
+        <a href="{{ path('list_show', {id: list.id, status: 'done'}) }}">done</a>
+    </p>
+
+    <table>
+        <thead><tr><th></th><th>Task</th><th>Priority</th><th>Due</th><th></th></tr></thead>
+        <tbody>
+        {% for task in tasks %}
+            {% set overdue = task.dueDate and task.status != 'done' and task.dueDate|date('Y-m-d') < 'now'|date('Y-m-d') %}
+            <tr>
+                <td>
+                    <form class="inline" method="post" action="{{ path('task_toggle', {id: task.id}) }}">
+                        <button type="submit" title="Toggle">{% if task.status == 'done' %}☑{% else %}☐{% endif %}</button>
+                    </form>
+                </td>
+                <td class="{% if task.status == 'done' %}done{% endif %}">
+                    {{ task.title }}
+                    {% if task.status == 'doing' %}<span class="badge">in progress</span>{% endif %}
+                </td>
+                <td>
+                    {% if task.priority == 3 %}<span class="badge badge-high">High</span>
+                    {% elseif task.priority == 2 %}<span class="badge">Normal</span>
+                    {% else %}<span class="badge">Low</span>{% endif %}
+                </td>
+                <td class="{% if overdue %}overdue{% endif %}">{{ task.dueDate ? task.dueDate|date('d/m/Y') : '' }}</td>
+                <td>
+                    <a href="{{ path('task_edit', {id: task.id}) }}">edit</a> ·
+                    <a href="{{ path('task_delete', {id: task.id}) }}">delete</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5">No tasks.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Add task</h3>
+    <form method="post" action="{{ path('task_create', {id: list.id}) }}">
+        <input name="title" placeholder="Title" required>
+        <select name="priority">
+            <option value="1">Low</option>
+            <option value="2" selected>Normal</option>
+            <option value="3">High</option>
+        </select>
+        <input type="date" name="dueDate">
+        <button type="submit">Add</button>
+    </form>
+
+    <form method="post" action="{{ path('list_delete', {id: list.id}) }}" style="margin-top:24px">
+        <button type="submit">Delete list</button>
+    </form>
+{% endblock %}

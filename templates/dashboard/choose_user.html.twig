@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>Who are you?</h2>
+    <ul>
+        {% for u in users %}
+            <li><a href="{{ path('switch_user', {id: u.id}) }}">{{ u.name }}</a> ({{ u.email }})</li>
+        {% else %}
+            <li>No users. Run <code>php bin/console app:seed</code>.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

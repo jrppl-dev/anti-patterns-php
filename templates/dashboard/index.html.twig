@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <p>Completed this week: <strong id="completed-this-week">{{ completedThisWeek }}</strong></p>
+
+    <h2>My lists</h2>
+    <table>
+        <thead><tr><th>List</th><th>To do</th><th>Doing</th><th>Done</th></tr></thead>
+        <tbody>
+        {% for list in lists %}
+            <tr>
+                <td><a href="{{ path('list_show', {id: list.id}) }}">{{ list.name }}</a></td>
+                <td>{{ counts[list.id]['todo'] }}</td>
+                <td>{{ counts[list.id]['doing'] }}</td>
+                <td>{{ counts[list.id]['done'] }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">No lists yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>New list</h3>
+    <form method="post" action="{{ path('list_create') }}">
+        <input name="name" placeholder="List name" required>
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}

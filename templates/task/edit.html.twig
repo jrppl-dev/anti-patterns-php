@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>Edit task</h2>
+    {% for error in errors %}
+        <div class="flash-error">{{ error }}</div>
+    {% endfor %}
+    <form method="post">
+        <p><label>Title<br><input name="title" value="{{ task.title }}" required></label></p>
+        <p><label>Description<br><textarea name="description" rows="3">{{ task.description }}</textarea></label></p>
+        <p>
+            <label>Status<br>
+                <select name="status">
+                    <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To do</option>
+                    <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>Doing</option>
+                    <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+                </select>
+            </label>
+        </p>
+        <p>
+            <label>Priority<br>
+                <select name="priority">
+                    <option value="1" {% if task.priority == 1 %}selected{% endif %}>Low</option>
+                    <option value="2" {% if task.priority == 2 %}selected{% endif %}>Normal</option>
+                    <option value="3" {% if task.priority == 3 %}selected{% endif %}>High</option>
+                </select>
+            </label>
+        </p>
+        <p><label>Due date<br><input type="date" name="dueDate" value="{{ task.dueDate ? task.dueDate|date('Y-m-d') : '' }}"></label></p>
+        <button type="submit">Save</button>
+        <a href="{{ path('list_show', {id: task.list.id}) }}">Cancel</a>
+    </form>
+{% endblock %}
