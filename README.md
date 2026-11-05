@@ -1,6 +1,6 @@
 # Todo
 
-A small Symfony 7.4 todo app: users, lists and tasks, with web pages and a JSON API.
+A small Symfony 7.4 todo app: users, lists and tasks, with web pages and a JSON API. Lists can be searched, sorted and completed in one go; tasks can be snoozed by a day.
 
 ## Run
 - `php bin/console doctrine:migrations:migrate -n` creates the SQLite database in `var/`.
@@ -12,6 +12,7 @@ Send the acting user's id in the `X-User-Id` header.
 - `GET /api/lists/{id}/tasks`
 - `POST /api/lists/{id}/tasks` with `{"title", "description", "priority": 1-3, "dueDate": "Y-m-d"}`
 - `PATCH /api/tasks/{id}` with any of those fields and `status` (todo, doing, done)
+- `POST /api/tasks/{id}/snooze` moves the due date one day later
 
 ## Tests
 `php vendor/bin/phpunit`. The bootstrap rebuilds `var/data_test.db` from the migrations.
